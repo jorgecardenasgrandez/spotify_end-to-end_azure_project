@@ -5,13 +5,34 @@
 			"referenceName": "ls_adls_covidreportingdl",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"CONTAINER": {
+				"type": "string"
+			},
+			"FOLDER": {
+				"type": "string"
+			},
+			"INPUT_FILE": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "Parquet",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "ecdc",
-				"fileSystem": "raw"
+				"fileName": {
+					"value": "@dataset().INPUT_FILE",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().FOLDER",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().CONTAINER",
+					"type": "Expression"
+				}
 			},
 			"compressionCodec": "snappy"
 		},
