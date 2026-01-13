@@ -1,5 +1,5 @@
 {
-	"name": "pl_spotify_tables_ingestion",
+	"name": "pl_bookstore_tables_ingestion",
 	"properties": {
 		"activities": [
 			{
@@ -24,7 +24,7 @@
 								"type": "Expression"
 							},
 							"FOLDER": {
-								"value": "@pipeline().parameters.FOLDER",
+								"value": "@pipeline().parameters.FOLDER_INPUT",
 								"type": "Expression"
 							},
 							"FILE": {
@@ -117,7 +117,7 @@
 								"type": "Expression"
 							},
 							"FOLDER": {
-								"value": "@pipeline().parameters.FOLDER",
+								"value": "@pipeline().parameters.FOLDER_INPUT",
 								"type": "Expression"
 							},
 							"FILE": {
@@ -204,7 +204,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "AzureSqlTable1",
+									"referenceName": "ds_asql_table",
 									"type": "DatasetReference"
 								}
 							],
@@ -218,7 +218,7 @@
 											"type": "Expression"
 										},
 										"FOLDER": {
-											"value": "@item().table_source",
+											"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source)",
 											"type": "Expression"
 										},
 										"INPUT_FILE": {
@@ -251,7 +251,7 @@
 											"type": "Expression"
 										},
 										"FOLDER": {
-											"value": "@concat(item().table_source, '_cdc')",
+											"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source, '_cdc')",
 											"type": "Expression"
 										},
 										"FILE": "cdc.json"
@@ -262,6 +262,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -287,7 +288,10 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"CONTAINER": "@pipeline().parameters.CONTAINER",
-										"FOLDER": "@concat(item().table_source, '_cdc')",
+										"FOLDER": {
+											"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source, '_cdc')",
+											"type": "Expression"
+										},
 										"FILE": "empty.json"
 									}
 								},
@@ -296,6 +300,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -372,7 +377,7 @@
 														"type": "Expression"
 													},
 													"FOLDER": {
-														"value": "@pipeline().parameters.FOLDER",
+														"value": "@pipeline().parameters.FOLDER_INPUT",
 														"type": "Expression"
 													},
 													"FILE": "cdc.json"
@@ -389,7 +394,7 @@
 														"type": "Expression"
 													},
 													"FOLDER": {
-														"value": "@concat(item().table_source, '_cdc')",
+														"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source, '_cdc')",
 														"type": "Expression"
 													},
 													"FILE": "cdc.json"
@@ -449,7 +454,7 @@
 														"type": "Expression"
 													},
 													"FOLDER": {
-														"value": "@pipeline().parameters.FOLDER",
+														"value": "@pipeline().parameters.FOLDER_INPUT",
 														"type": "Expression"
 													},
 													"FILE": "empty.json"
@@ -465,7 +470,10 @@
 														"value": "@pipeline().parameters.CONTAINER",
 														"type": "Expression"
 													},
-													"FOLDER": "@concat(item().table_source, '_cdc')",
+													"FOLDER": {
+														"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source, '_cdc')",
+														"type": "Expression"
+													},
 													"FILE": "empty.json"
 												}
 											}
@@ -491,6 +499,38 @@
 									"value": "@greater(activity('cp_sql_to_adls').output.rowsRead, 0)",
 									"type": "Expression"
 								},
+								"ifFalseActivities": [
+									{
+										"name": "Delete1",
+										"type": "Delete",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"dataset": {
+												"referenceName": "ds_parquet",
+												"type": "DatasetReference",
+												"parameters": {
+													"CONTAINER": "@pipeline().parameters.CONTAINER",
+													"FOLDER": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source)",
+													"INPUT_FILE": "@concat(item().table_source, '_', variables('current_time'))"
+												}
+											},
+											"enableLogging": false,
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										}
+									}
+								],
 								"ifTrueActivities": [
 									{
 										"name": "get_max_update_at",
@@ -581,7 +621,10 @@
 														"value": "@pipeline().parameters.CONTAINER",
 														"type": "Expression"
 													},
-													"FOLDER": "@concat(item().table_source, '_cdc')",
+													"FOLDER": {
+														"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source, '_cdc')",
+														"type": "Expression"
+													},
 													"FILE": "empty.json"
 												}
 											}
@@ -595,7 +638,10 @@
 														"value": "@pipeline().parameters.CONTAINER",
 														"type": "Expression"
 													},
-													"FOLDER": "@concat(item().table_source, '_cdc')",
+													"FOLDER": {
+														"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source, '_cdc')",
+														"type": "Expression"
+													},
 													"FILE": "cdc.json"
 												}
 											}
@@ -640,7 +686,10 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"CONTAINER": "@pipeline().parameters.CONTAINER",
-										"FOLDER": "@concat(item().table_source, '_cdc')",
+										"FOLDER": {
+											"value": "@concat(pipeline().parameters.FOLDER_OUTPUT,item().table_source, '_cdc')",
+											"type": "Expression"
+										},
 										"FILE": "cdc.json"
 									}
 								},
@@ -671,28 +720,28 @@
 		"parameters": {
 			"CONTAINER": {
 				"type": "string",
-				"defaultValue": "staging"
+				"defaultValue": "bookstore"
 			},
-			"FOLDER": {
+			"FOLDER_INPUT": {
 				"type": "string",
-				"defaultValue": "template"
+				"defaultValue": "landing/Others/template"
 			},
 			"FILE_INPUT": {
 				"type": "string",
 				"defaultValue": "input.json"
+			},
+			"FOLDER_OUTPUT": {
+				"type": "string",
+				"defaultValue": "landing/Others/data/"
 			}
 		},
 		"variables": {
 			"current_time": {
 				"type": "String"
-			},
-			"cdc_file": {
-				"type": "String",
-				"defaultValue": "cdc.json"
 			}
 		},
 		"folder": {
-			"name": "pl_spotify"
+			"name": "pl_book_store"
 		},
 		"annotations": []
 	}
