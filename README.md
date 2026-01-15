@@ -9,12 +9,12 @@ La ingesta de datos se realiza de forma incremental, identificando registros nue
 
 La capa Landing actúa como zona de aterrizaje inicial, recibiendo archivos en formatos JSON y CSV. 
 
-En el caso del procesamiento para las siguientes capas se utiliza Lakeflow con Spark Declarative Pipelines en Azure Databricks, lo que permite definir flujos de datos de manera declarativa, asegurando trazabilidad, escalabilidad y una orquestación eficiente. El acceso a los datos almacenados en el Storage Account se gestiona mediante External Locations, utilizando Storage Credentials para la autenticación, lo que permite un acceso seguro y controlado bajo las políticas de gobierno definidas en Unity Catalog. 
+En el caso del procesamiento para las siguientes capas se utiliza Lakeflow con Spark Declarative Pipelines en Azure Databricks mediante Streaming, lo que permite definir flujos de datos de manera declarativa, asegurando trazabilidad, escalabilidad y una orquestación eficiente. El acceso a los datos almacenados en el Storage Account se gestiona mediante External Locations, utilizando Storage Credentials para la autenticación, lo que permite un acceso seguro y controlado bajo las políticas de gobierno definidas en Unity Catalog. 
 
 Posteriormente, para la carga hacia la capa Raw, se utiliza Databricks Auto Loader, definiendo el schemaLocation y permitiendo almacenar los datos de forma eficiente y mantener un histórico completo de la información ingerida.
 
 En la capa Silver, los datos son limpiados, transformados y enriquecidos, aplicando reglas de calidad de datos mediante Expectations, lo que garantiza consistencia y confiabilidad. Adicionalmente, en esta capa se implementan estrategias de Slowly Changing Dimensions (SCD), tanto Tipo 1 como Tipo 2, permitiendo actualizar registros y, cuando es necesario, preservar el historial de cambios.
 
-Finalmente, la capa Gold consume las tablas dimensionales y hechos, aplicando un modelo dimensional tipo estrella, dejando los datos listos para su consumo analítico, generación de reportes y visualización en herramientas de BI.
+En la capa Gold consume las tablas dimensionales y hechos, aplicando un modelo dimensional tipo estrella, dejando los datos listos para su consumo analítico, generación de reportes y visualización en herramientas de BI.
 
-El gobierno y seguridad de los datos se gestionan de manera centralizada mediante Unity Catalog y Azure Key Vault, lo que garantiza control de permisos, trazabilidad y cumplimiento de buenas prácticas de seguridad.
+Finalmente, el gobierno y seguridad de los datos se gestionan de manera centralizada mediante Unity Catalog y Azure Key Vault, lo que garantiza control de permisos, trazabilidad y cumplimiento de buenas prácticas de seguridad.
