@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    pipeline_pl_elt_bookstore:
+      name: pl_elt_bookstore
+      libraries:
+        - glob:
+            include: ../../src/bookstore_pipeline/transformations/**
+      schema: silver
+      photon: true
+      catalog: ${var.catalog_name}
+      serverless: true
+      root_path: ../../src/bookstore_pipeline
